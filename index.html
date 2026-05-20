@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎂 С Днём Рождения! Колесо Подарков 🎁</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #1a472a 0%, #0e2a1a 100%);
+            font-family: 'Segoe UI', 'Poppins', 'Montserrat', system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Главная карточка-казино (но стилизовано празднично) */
+        .birthday-casino {
+            max-width: 550px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 64px 48px 64px 48px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.6);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* шапка */
+        .gold-header {
+            background: linear-gradient(135deg, #ffd966, #ffb347);
+            padding: 20px 20px 15px;
+            text-align: center;
+            border-bottom: 3px solid gold;
+        }
+
+        .gold-header h1 {
+            margin: 0;
+            font-size: 1.9rem;
+            letter-spacing: 2px;
+            color: #2c1a0a;
+            text-shadow: 0 2px 5px rgba(255,215,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .gold-header p {
+            margin: 8px 0 0;
+            font-weight: bold;
+            color: #1e2a0a;
+            background: #fff0b5;
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+        }
+
+        /* основная зона */
+        .casino-body {
+            padding: 30px 25px 35px;
+        }
+
+        /* стили для "регистрации" = просто ввод имени */
+        .reg-card, .spin-card, .result-card {
+            background: #261f15c9;
+            border-radius: 48px;
+            padding: 20px 20px 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255,200,100,0.4);
+        }
+
+        .reg-card h2, .spin-card h2 {
+            color: #ffdf9c;
+            font-weight: 600;
+            margin-top: 0;
+        }
+
+        .input-name {
+            width: 85%;
+            padding: 14px 20px;
+            font-size: 1.1rem;
+            border-radius: 60px;
+            border: none;
+            background: #fff2df;
+            text-align: center;
+            font-weight: bold;
+            margin: 15px 0;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .btn {
+            background: radial-gradient(circle at 30% 10%, #ffcd7e, #ffa01e);
+            border: none;
+            padding: 12px 28px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2f2a1f;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 6px 0 #b45f06;
+            font-family: inherit;
+        }
+
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #b45f06;
+        }
+
+        /* Слот-машина / Колесо */
+        .wheel-container {
+            background: #1b1209;
+            border-radius: 50%;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            position: relative;
+            box-shadow: 0 0 0 8px #ffcf4a, 0 0 0 12px #7a5300;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #ecb176;
+            cursor: pointer;
+        }
+
+        .spin-btn {
+            background: #f7b32b;
+            font-size: 1.6rem;
+            padding: 12px 35px;
+            margin-top: 10px;
+        }
+
+        .win-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: gold;
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 60px;
+            margin: 20px 0;
+            color: #1f3b08;
+        }
+
+        .happy-message {
+            background: #fff5e0;
+            border-radius: 48px;
+            padding: 20px;
+            margin-top: 20px;
+            color: #ad5a00;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.75rem;
+            padding: 15px;
+            color: #e9c891;
+            border-top: 1px solid #ffce6e60;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .candy {
+            font-size: 1.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="birthday-casino" id="app">
+    <div class="gold-header">
+        <h1>🎲 ROYAL BIRTHDAY CASINO 🎂</h1>
+        <p>⭐ Только один фриспин на удачу! ⭐</p>
+    </div>
+    <div class="casino-body">
+        <!-- ЭТАП 1: Регистрация (игровая, просто ввести имя) -->
+        <div id="regScreen" class="reg-card">
+            <h2>✨ ДОБРО ПОЖАЛОВАТЬ ✨</h2>
+            <div class="candy">🎈🎁🎈</div>
+            <p style="color:#ffda99">Введи своё имя, чтобы получить<br> <strong>эксклюзивный фриспин</strong> 🎰</p>
+            <input type="text" id="username" class="input-name" placeholder="Напиши своё имя..." maxlength="20">
+            <br>
+            <button id="startRegBtn" class="btn">🎟 АКТИВИРОВАТЬ СПИН 🎟</button>
+            <p style="font-size:12px; margin-top:20px;">(никаких реальных денег, только сюрприз от друга)</p>
+        </div>
+
+        <!-- ЭТАП 2: Фриспин (вращаем колесо) -->
+        <div id="spinScreen" class="spin-card hidden">
+            <h2>🎰 <span id="greetUser"></span>, твой фриспин! 🎰</h2>
+            <div class="wheel-container">
+                <canvas id="wheelCanvas" width="400" height="400"></canvas>
+            </div>
+            <button id="spinWheelBtn" class="btn spin-btn">🌀 КРУТИТЬ! 🌀</button>
+            <p style="color:#ffd58c; margin-top: 15px;">★ нажми на колесо или на кнопку ★</p>
+        </div>
+
+        <!-- ЭТАП 3: Результат + поздравление + 20 рублей -->
+        <div id="resultScreen" class="result-card hidden">
+            <div id="winDisplay"></div>
+            <div id="congratsMsg" class="happy-message"></div>
+            <button id="restartBtn" class="btn" style="background:#af7f41;">🎂 ЕЩЁ РАЗ? 🎂</button>
+        </div>
+    </div>
+    <div class="footer-note">
+        🎉 только позитив и подарок имениннику! 🎉
+    </div>
+</div>
+
+<script>
+    // ======================= НАСТРОЙКИ КОЛЕСА =========================
+    // 8 секторов, один из них – выигрыш 20 рублей (остальные символические)
+    const SECTORS = [
+        { name: "🍀 5 РУБ",   value: 5,   color: "#f3c7a0" },
+        { name: "💎 20 РУБ",  value: 20,  color: "#ffd966" },  // ЗОЛОТОЙ ВЫИГРЫШ
+        { name: "🍬 2 РУБ",   value: 2,   color: "#e6b890" },
+        { name: "🎁 10 РУБ",  value: 10,  color: "#f8d5a3" },
+        { name: "🥇 1 РУБ",   value: 1,   color: "#efc48c" },
+        { name: "🎈 7 РУБ",   value: 7,   color: "#f0bc82" },
+        { name: "🍫 3 РУБ",   value: 3,   color: "#e7b578" },
+        { name: "🏆 20 РУБ",  value: 20,  color: "#ffc857" }    // Второй сектор 20 руб, чтобы шанс был повыше и красиво
+    ];
+    
+    // Индексы секторов с призом 20 рублей
+    const WIN_INDEXES = SECTORS.reduce((arr, sec, idx) => {
+        if(sec.value === 20) arr.push(idx);
+        return arr;
+    }, []);
+
+    let canvas = null;
+    let ctx = null;
+    let currentAngle = 0;
+    let spinning = false;
+    let animationId = null;
+
+    // Состояния интерфейса
+    let userName = "";
+    let spinFinished = false;    // уже крутили?
+    let winAmount = 0;
+
+    // DOM элементы
+    const regScreen = document.getElementById('regScreen');
+    const spinScreen = document.getElementById('spinScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const startRegBtn = document.getElementById('startRegBtn');
+    const usernameInput = document.getElementById('username');
+    const greetUserSpan = document.getElementById('greetUser');
+    const spinBtn = document.getElementById('spinWheelBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const winDisplay = document.getElementById('winDisplay');
+    const congratsMsgDiv = document.getElementById('congratsMsg');
+
+    // ============== РИСОВАНИЕ КОЛЕСА ==============
+    function drawWheel(angleRad = 0) {
+        if(!ctx) return;
+        const w = canvas.width;
+        const h = canvas.height;
+        const centerX = w/2;
+        const centerY = h/2;
+        const radius = w/2 - 5;
+        const angleStep = (Math.PI * 2) / SECTORS.length;
+        
+        ctx.clearRect(0, 0, w, h);
+        
+        for(let i = 0; i < SECTORS.length; i++) {
+            const start = i * angleStep + angleRad;
+            const end = (i+1) * angleStep + angleRad;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.arc(centerX, centerY, radius, start, end);
+            ctx.closePath();
+            ctx.fillStyle = SECTORS[i].color;
+            ctx.fill();
+            ctx.save();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = "#4a2a0a";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // текст
+            ctx.fillStyle = "#2c1a0a";
+            ctx.font = `bold ${Math.floor(radius * 0.12)}px "Segoe UI"`;
+            ctx.shadowBlur = 0;
+            const midAngle = start + angleStep/2;
+            const textRadius = radius * 0.72;
+            const x = centerX + Math.cos(midAngle) * textRadius;
+            const y = centerY + Math.sin(midAngle) * textRadius;
+            ctx.fillText(SECTORS[i].name, x - 20, y + 5);
+            ctx.restore();
+        }
+        // стрелка / указатель
+        ctx.beginPath();
+        ctx.moveTo(centerX + radius + 5, centerY - 8);
+        ctx.lineTo(centerX + radius + 20, centerY);
+        ctx.lineTo(centerX + radius + 5, centerY + 8);
+        ctx.fillStyle = "gold";
+        ctx.fill();
+        ctx.fillStyle = "#ffd966";
+        ctx.font = "bold 20px monospace";
+        ctx.fillText("👇", centerX + radius - 12, centerY + 6);
+    }
+
+    // определяем сектор по углу (от -angleRad)
+    function getSectorIndex(angleRad) {
+        const angleStep = (Math.PI * 2) / SECTORS.length;
+        let rawAngle = (Math.PI * 2 - (angleRad % (Math.PI * 2))) % (Math.PI * 2);
+        let idx = Math.floor(rawAngle / angleStep) % SECTORS.length;
+        return idx;
+    }
+
+    function spinWheel() {
+        if(spinning) return;
+        spinning = true;
+        const startTime = performance.now();
+        const duration = 2000; // 2 секунды вращения
+        const startAngle = currentAngle;
+        const fullTurns = 8;   // 8 полных оборотов для красоты
+        const targetRandomDelta = (Math.random() * Math.PI * 2);
+        
+        function animateSpin(now) {
+            const elapsed = now - startTime;
+            let t = Math.min(1, elapsed / duration);
+            // easing cubic out
+            const easeOut = 1 - Math.pow(1-t, 3);
+            const angleDelta = (fullTurns * Math.PI * 2 + targetRandomDelta) * easeOut;
+            currentAngle = startAngle + angleDelta;
+            drawWheel(currentAngle);
+            if(t < 1) {
+                animationId = requestAnimationFrame(animateSpin);
+            } else {
+                // финальный угол
+                currentAngle = startAngle + (fullTurns * Math.PI * 2 + targetRandomDelta);
+                drawWheel(currentAngle);
+                const finalIdx = getSectorIndex(currentAngle);
+                const prizeValue = SECTORS[finalIdx].value;
+                winAmount = prizeValue;
+                spinFinished = true;
+                spinning = false;
+                if(animationId) cancelAnimationFrame(animationId);
+                
+                // ПОКАЗЫВАЕМ РЕЗУЛЬТАТ
+                showResult(winAmount);
+            }
+        }
+        
+        if(animationId) cancelAnimationFrame(animationId);
+        animationId = requestAnimationFrame(animateSpin);
+    }
+
+    function showResult(winRub) {
+        // Скрыть спин-экран, показать результат
+        spinScreen.classList.add('hidden');
+        resultScreen.classList.remove('hidden');
+        
+        const isTwenty = (winRub === 20);
+        
+        // оформление выигрыша
+        if(isTwenty) {
+            winDisplay.innerHTML = `<div class="win-amount">🎉 ВЫИГРЫШ: ${winRub} РУБЛЕЙ! 🎉</div>`;
+            congratsMsgDiv.innerHTML = `
+                🎂✨<strong>С ДНЁМ РОЖДЕНИЯ, ${userName}!!!</strong>✨🎂<br><br>
+                🎁 Ты выиграл <span style="font-size:2rem;">${winRub} рублей</span> 🎁<br>
+                💝 Я дарю тебе эти 20 рублей на что захочешь! 💝<br>
+                🌟 Пусть удача всегда улыбается тебе! 🌟<br>
+                🥳 <u>Обнимаю и поздравляю!</u> 🥳
+            `;
+        } else {
+            winDisplay.innerHTML = `<div style="background:#3a2a18; border-radius:40px; padding:16px;">🎲 ВЫПАЛО: ${winRub} руб. 🎲<br>🎈 но сегодня — особенный бонус!</div>`;
+            congratsMsgDiv.innerHTML = `
+                🎂 <strong>С Днём Рождения, дорогой ${userName}!</strong> 🎂<br><br>
+                Хотя колесо показало ${winRub} рубля(ей), <span style="color:#e7a020; font-size:1.3rem;">Я дарю тебе 20 рублей</span> в честь праздника!<br>
+                🎁 Пусть этот день будет ярким и счастливым! 🎉🎉
+            `;
+        }
+        // НО В ЛЮБОМ СЛУЧАЕ мы ДАРИМ 20 рублей !!! (фраза в поздравлении) – цель достигнута
+        // И если выпало 20 – двойная радость
+    }
+    
+    // Завершаем регистрацию и переходим к спину
+    function finishRegistration() {
+        let name = usernameInput.value.trim();
+        if(name === "") {
+            name = "ИМЕНИННИК";
+        }
+        userName = name;
+        greetUserSpan.innerText = userName;
+        regScreen.classList.add('hidden');
+        spinScreen.classList.remove('hidden');
+        // инициализируем колесо если ещё нет
+        if(!canvas) {
+            canvas = document.getElementById('wheelCanvas');
+            ctx = canvas.getContext('2d');
+            drawWheel(currentAngle);
+        } else {
+            drawWheel(currentAngle);
+        }
+    }
+    
+    // Сброс для повторного шоу (можно начать заново)
+    function fullReset() {
+        spinFinished = false;
+        winAmount = 0;
+        regScreen.classList.remove('hidden');
+        spinScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        usernameInput.value = "";
+        currentAngle = 0;
+        if(canvas && ctx) drawWheel(currentAngle);
+        spinning = false;
+        if(animationId) cancelAnimationFrame(animationId);
+    }
+    
+    // Обработчики
+    startRegBtn.addEventListener('click', finishRegistration);
+    spinBtn.addEventListener('click', () => {
+        if(!spinFinished && !spinning) spinWheel();
+    });
+    canvas?.addEventListener('click', () => {
+        if(!spinFinished && !spinning && spinScreen && !spinScreen.classList.contains('hidden')) spinWheel();
+    });
+    restartBtn.addEventListener('click', fullReset);
+    
+    // на случай если canvas уже подгружен
+    window.addEventListener('load', () => {
+        canvas = document.getElementById('wheelCanvas');
+        if(canvas) {
+            ctx = canvas.getContext('2d');
+            drawWheel(0);
+        }
+    });
+</script>
+</body>
+</html>
